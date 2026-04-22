@@ -1,8 +1,10 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-theme="dark">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="The definitive, utterly biased, scientifically dubious comparison of Tomas vs. Fernanda at tennis." />
+  <meta name="theme-color" content="#0a2416" />
   <title>Tomas vs. Fernanda — The Ultimate Tennis Showdown</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -10,8 +12,20 @@
   <link rel="stylesheet" href="styles.css" />
 </head>
 <body>
-  <!-- Animated background -->
-  <div class="court-bg">
+  <!-- Skip link for keyboard users -->
+  <a href="#main" class="skip-link">Skip to content</a>
+
+  <!-- LOADING SCREEN -->
+  <div id="loader" class="loader" aria-hidden="true">
+    <div class="loader__ball">
+      <span class="seam seam--one"></span>
+      <span class="seam seam--two"></span>
+    </div>
+    <p class="loader__text">Warming up...</p>
+  </div>
+
+  <!-- Court background -->
+  <div class="court-bg" aria-hidden="true">
     <div class="court-line court-line--h top"></div>
     <div class="court-line court-line--h mid"></div>
     <div class="court-line court-line--h bot"></div>
@@ -29,253 +43,397 @@
   </div>
 
   <!-- NAV -->
-  <nav class="nav">
-    <div class="nav__logo">
-      <span class="logo-ball"></span>
+  <nav class="nav" aria-label="Primary">
+    <a href="#top" class="nav__logo" aria-label="Home">
+      <span class="logo-ball" aria-hidden="true"></span>
       <span>T<span class="vs-mini">vs</span>F</span>
-    </div>
+    </a>
     <ul class="nav__links">
       <li><a href="#showdown">Showdown</a></li>
-      <li><a href="#stats">Stats</a></li>
+      <li><a href="#stats-section">Stats</a></li>
+      <li><a href="#badges">Badges</a></li>
       <li><a href="#timeline">Timeline</a></li>
+      <li><a href="#news">News</a></li>
       <li><a href="#verdict">Verdict</a></li>
     </ul>
+    <div class="nav__tools">
+      <button id="sound-toggle" class="icon-btn" aria-pressed="false" aria-label="Toggle sound effects" title="Sound effects">
+        <span class="icon-btn__on" aria-hidden="true">♪</span>
+        <span class="icon-btn__off" aria-hidden="true">⊘</span>
+      </button>
+      <button id="theme-toggle" class="icon-btn" aria-label="Toggle light/dark theme" title="Theme">
+        <span class="icon-btn__on" aria-hidden="true">☀</span>
+        <span class="icon-btn__off" aria-hidden="true">☾</span>
+      </button>
+      <button id="share-btn" class="icon-btn" aria-label="Share this site" title="Share">
+        <span aria-hidden="true">↗</span>
+      </button>
+    </div>
   </nav>
 
-  <!-- HERO -->
-  <header class="hero">
-    <div class="hero__content">
-      <p class="hero__eyebrow">An Unauthorized Family Biography</p>
-      <h1 class="hero__title">
-        <span class="title-line">Tomas</span>
-        <span class="title-vs">vs.</span>
-        <span class="title-line title-line--fern">Fernanda</span>
-      </h1>
-      <p class="hero__subtitle">
-        A loving, meticulously researched, scientifically questionable comparison of
-        two world-class competitors who share a kitchen.
-      </p>
-      <div class="hero__cta">
-        <a href="#showdown" class="btn btn--primary">See the Matchup</a>
-        <a href="#verdict" class="btn btn--ghost">Skip to Verdict</a>
-      </div>
-      <div class="hero__scoreboard">
-        <div class="scorecard scorecard--tomas">
-          <span class="scorecard__label">Tomas</span>
-          <span class="scorecard__score">6</span>
-          <span class="scorecard__score">6</span>
-          <span class="scorecard__score">6</span>
-        </div>
-        <div class="scorecard scorecard--fern">
-          <span class="scorecard__label">Fernanda</span>
-          <span class="scorecard__score">2</span>
-          <span class="scorecard__score">3</span>
-          <span class="scorecard__score">1</span>
-        </div>
-      </div>
-    </div>
-    <div class="hero__ball" aria-hidden="true">
-      <div class="tennis-ball">
-        <span class="seam seam--one"></span>
-        <span class="seam seam--two"></span>
-      </div>
-    </div>
-  </header>
+  <main id="main">
+    <span id="top" class="anchor" aria-hidden="true"></span>
 
-  <!-- SHOWDOWN -->
-  <section id="showdown" class="showdown">
-    <h2 class="section__title">The Matchup</h2>
-    <p class="section__subtitle">Two players. One backyard court. Zero mercy.</p>
+    <!-- HERO with serve animation -->
+    <header class="hero">
+      <div class="hero__content">
+        <p class="hero__eyebrow">An Unauthorized Family Biography</p>
+        <h1 class="hero__title">
+          <span class="title-line">Tomas</span>
+          <span class="title-vs">vs.</span>
+          <span class="title-line title-line--fern">Fernanda</span>
+        </h1>
+        <p class="hero__subtitle">
+          A loving, meticulously researched, scientifically questionable comparison of
+          two world-class competitors who share a kitchen.
+        </p>
+        <div class="hero__cta">
+          <a href="#showdown" class="btn btn--primary">See the Matchup</a>
+          <a href="#verdict" class="btn btn--ghost">Skip to Verdict</a>
+          <button id="roast-btn" class="btn btn--fern" aria-controls="roast-output">🔥 Roast Mode</button>
+        </div>
+        <p id="roast-output" class="roast-output" aria-live="polite"></p>
 
-    <div class="showdown__grid">
-      <article class="player player--tomas">
-        <div class="player__avatar">T</div>
-        <h3 class="player__name">Tomas</h3>
-        <p class="player__handle">@the_forehand_phenom</p>
-        <dl class="player__facts">
-          <div><dt>Dominant hand</dt><dd>Right (devastatingly so)</dd></div>
-          <div><dt>Signature shot</dt><dd>Inside-out forehand</dd></div>
-          <div><dt>Top serve speed</dt><dd>118 mph*</dd></div>
-          <div><dt>Stamina</dt><dd>Unlimited (caffeine-assisted)</dd></div>
-          <div><dt>Weakness</dt><dd>Mild overconfidence</dd></div>
-        </dl>
-      </article>
-
-      <div class="showdown__vs">
-        <span>VS</span>
-      </div>
-
-      <article class="player player--fern">
-        <div class="player__avatar">F</div>
-        <h3 class="player__name">Fernanda</h3>
-        <p class="player__handle">@the_mom_with_a_backhand</p>
-        <dl class="player__facts">
-          <div><dt>Dominant hand</dt><dd>Right (when not holding a phone)</dd></div>
-          <div><dt>Signature shot</dt><dd>The "wait, was that in?" lob</dd></div>
-          <div><dt>Top serve speed</dt><dd>42 mph</dd></div>
-          <div><dt>Stamina</dt><dd>Two games, then snack break</dd></div>
-          <div><dt>Weakness</dt><dd>Checking the group chat mid-rally</dd></div>
-        </dl>
-      </article>
-    </div>
-    <p class="footnote">* Unverified, but witnessed by the dog.</p>
-  </section>
-
-  <!-- STATS -->
-  <section id="stats" class="stats">
-    <h2 class="section__title">The Data Doesn't Lie</h2>
-    <p class="section__subtitle">Statistically, emotionally, and aerodynamically — it's not close.</p>
-
-    <div class="stats__list">
-      <!-- Each stat: tomas value on left (higher = better), fern on right -->
-      <div class="stat" data-tomas="96" data-fern="31">
-        <div class="stat__label">
-          <span>Serve Power</span>
-          <span class="stat__unit">mph · relative</span>
-        </div>
-        <div class="stat__bars">
-          <div class="stat__bar stat__bar--tomas"><span class="stat__fill" style="--w:96%"><span class="stat__value">96</span></span></div>
-          <div class="stat__bar stat__bar--fern"><span class="stat__fill" style="--w:31%"><span class="stat__value">31</span></span></div>
-        </div>
-      </div>
-
-      <div class="stat" data-tomas="92" data-fern="44">
-        <div class="stat__label">
-          <span>Forehand Accuracy</span>
-          <span class="stat__unit">% in-court</span>
-        </div>
-        <div class="stat__bars">
-          <div class="stat__bar stat__bar--tomas"><span class="stat__fill" style="--w:92%"><span class="stat__value">92%</span></span></div>
-          <div class="stat__bar stat__bar--fern"><span class="stat__fill" style="--w:44%"><span class="stat__value">44%</span></span></div>
-        </div>
-      </div>
-
-      <div class="stat" data-tomas="88" data-fern="38">
-        <div class="stat__label">
-          <span>Backhand Consistency</span>
-          <span class="stat__unit">rally survival rate</span>
-        </div>
-        <div class="stat__bars">
-          <div class="stat__bar stat__bar--tomas"><span class="stat__fill" style="--w:88%"><span class="stat__value">88%</span></span></div>
-          <div class="stat__bar stat__bar--fern"><span class="stat__fill" style="--w:38%"><span class="stat__value">38%</span></span></div>
-        </div>
-      </div>
-
-      <div class="stat" data-tomas="94" data-fern="22">
-        <div class="stat__label">
-          <span>Court Coverage</span>
-          <span class="stat__unit">meters per point</span>
-        </div>
-        <div class="stat__bars">
-          <div class="stat__bar stat__bar--tomas"><span class="stat__fill" style="--w:94%"><span class="stat__value">94</span></span></div>
-          <div class="stat__bar stat__bar--fern"><span class="stat__fill" style="--w:22%"><span class="stat__value">22</span></span></div>
-        </div>
-      </div>
-
-      <div class="stat" data-tomas="98" data-fern="18">
-        <div class="stat__label">
-          <span>Stamina</span>
-          <span class="stat__unit">games before snack</span>
-        </div>
-        <div class="stat__bars">
-          <div class="stat__bar stat__bar--tomas"><span class="stat__fill" style="--w:98%"><span class="stat__value">∞</span></span></div>
-          <div class="stat__bar stat__bar--fern"><span class="stat__fill" style="--w:18%"><span class="stat__value">2</span></span></div>
-        </div>
-      </div>
-
-      <div class="stat" data-tomas="90" data-fern="97">
-        <div class="stat__label">
-          <span>Trash Talk</span>
-          <span class="stat__unit">(finally — a Fernanda win)</span>
-        </div>
-        <div class="stat__bars">
-          <div class="stat__bar stat__bar--tomas"><span class="stat__fill" style="--w:90%"><span class="stat__value">90</span></span></div>
-          <div class="stat__bar stat__bar--fern"><span class="stat__fill" style="--w:97%"><span class="stat__value">97</span></span></div>
-        </div>
-      </div>
-    </div>
-
-    <!-- Head-to-head record -->
-    <div class="h2h">
-      <div class="h2h__card">
-        <h3>Head-to-Head Record</h3>
-        <div class="h2h__score">
-          <div class="h2h__side h2h__side--tomas">
-            <span class="h2h__num" data-count="47">0</span>
-            <span class="h2h__name">Tomas</span>
+        <div class="hero__scoreboard" role="img" aria-label="Scoreboard: Tomas 6-6-6, Fernanda 2-3-1">
+          <div class="scorecard scorecard--tomas">
+            <span class="scorecard__label">Tomas</span>
+            <span class="scorecard__score">6</span>
+            <span class="scorecard__score">6</span>
+            <span class="scorecard__score">6</span>
           </div>
-          <span class="h2h__dash">—</span>
-          <div class="h2h__side h2h__side--fern">
-            <span class="h2h__num" data-count="3">0</span>
-            <span class="h2h__name">Fernanda</span>
+          <div class="scorecard scorecard--fern">
+            <span class="scorecard__label">Fernanda</span>
+            <span class="scorecard__score">2</span>
+            <span class="scorecard__score">3</span>
+            <span class="scorecard__score">1</span>
           </div>
         </div>
-        <p class="h2h__asterisk">
-          Fernanda's 3 wins all occurred during seasons when Tomas was
-          "letting her get one so she'd keep playing."
+      </div>
+
+      <!-- Serving animation stage -->
+      <div class="hero__stage" aria-hidden="true">
+        <div class="server">
+          <div class="server__racket"></div>
+          <span class="server__label">Tomas</span>
+        </div>
+        <div class="receiver">
+          <div class="receiver__racket"></div>
+          <span class="receiver__label">Fernanda</span>
+        </div>
+        <div class="serve-ball">
+          <div class="tennis-ball tennis-ball--sm">
+            <span class="seam seam--one"></span>
+            <span class="seam seam--two"></span>
+            <span class="motion-blur"></span>
+          </div>
+        </div>
+        <div class="trail"></div>
+      </div>
+    </header>
+
+    <!-- SHOWDOWN -->
+    <section id="showdown" class="showdown reveal">
+      <h2 class="section__title">The Matchup</h2>
+      <p class="section__subtitle">Two players. One backyard court. Zero mercy.</p>
+
+      <div class="showdown__grid">
+        <article class="player player--tomas">
+          <div class="player__avatar" aria-hidden="true">T</div>
+          <h3 class="player__name">Tomas</h3>
+          <p class="player__handle">@the_forehand_phenom</p>
+          <dl class="player__facts">
+            <div><dt>Dominant hand</dt><dd>Right (devastatingly so)</dd></div>
+            <div><dt>Signature shot</dt><dd>Inside-out forehand</dd></div>
+            <div><dt>Top serve speed</dt><dd>118 mph*</dd></div>
+            <div><dt>Stamina</dt><dd>Unlimited (caffeine-assisted)</dd></div>
+            <div><dt>Weakness</dt><dd>Mild overconfidence</dd></div>
+          </dl>
+          <button class="hidden-stat-btn" data-target="hs-tomas" aria-expanded="false" aria-controls="hs-tomas">
+            Reveal Hidden Stat
+          </button>
+          <div id="hs-tomas" class="hidden-stat" hidden>
+            <strong>Unofficial ATP ranking:</strong> #1 in our zip code.
+          </div>
+        </article>
+
+        <div class="showdown__vs" aria-hidden="true">
+          <span>VS</span>
+        </div>
+
+        <article class="player player--fern">
+          <div class="player__avatar" aria-hidden="true">F</div>
+          <h3 class="player__name">Fernanda</h3>
+          <p class="player__handle">@the_mom_with_a_backhand</p>
+          <dl class="player__facts">
+            <div><dt>Dominant hand</dt><dd>Right (when not holding a phone)</dd></div>
+            <div><dt>Signature shot</dt><dd>The "wait, was that in?" lob</dd></div>
+            <div><dt>Top serve speed</dt><dd>42 mph</dd></div>
+            <div><dt>Stamina</dt><dd>Two games, then snack break</dd></div>
+            <div><dt>Weakness</dt><dd>Checking the group chat mid-rally</dd></div>
+          </dl>
+          <button class="hidden-stat-btn" data-target="hs-fern" aria-expanded="false" aria-controls="hs-fern">
+            Reveal Hidden Stat
+          </button>
+          <div id="hs-fern" class="hidden-stat" hidden>
+            <strong>Unofficial WTA ranking:</strong> Unranked but beloved.
+          </div>
+        </article>
+      </div>
+      <p class="footnote">* Unverified, but witnessed by the dog.</p>
+    </section>
+
+    <!-- STATS with view tabs -->
+    <section id="stats-section" class="stats reveal">
+      <h2 class="section__title">The Data Doesn't Lie</h2>
+      <p class="section__subtitle">Statistically, emotionally, and aerodynamically — it's not close.</p>
+
+      <div class="tabs" role="tablist" aria-label="Comparison views">
+        <button class="tab is-active" role="tab" aria-selected="true" data-view="bars" id="tab-bars" aria-controls="view-bars">Bars</button>
+        <button class="tab" role="tab" aria-selected="false" data-view="radar" id="tab-radar" aria-controls="view-radar">Radar</button>
+        <button class="tab" role="tab" aria-selected="false" data-view="gauge" id="tab-gauge" aria-controls="view-gauge">Serve Gauge</button>
+        <button class="tab" role="tab" aria-selected="false" data-view="heatmap" id="tab-heatmap" aria-controls="view-heatmap">Court Heatmap</button>
+        <button class="tab" role="tab" aria-selected="false" data-view="rankings" id="tab-rankings" aria-controls="view-rankings">Rankings</button>
+      </div>
+
+      <!-- BARS VIEW -->
+      <div id="view-bars" class="view is-active" role="tabpanel" aria-labelledby="tab-bars">
+        <div class="stats__list">
+          <div class="stat" data-tomas="96" data-fern="31">
+            <div class="stat__label"><span>Serve Power</span><span class="stat__unit">mph · relative</span></div>
+            <div class="stat__bars">
+              <div class="stat__bar stat__bar--tomas"><span class="stat__fill" style="--w:96%"><span class="stat__value">96</span></span></div>
+              <div class="stat__bar stat__bar--fern"><span class="stat__fill" style="--w:31%"><span class="stat__value">31</span></span></div>
+            </div>
+          </div>
+          <div class="stat" data-tomas="92" data-fern="44">
+            <div class="stat__label"><span>Forehand Accuracy</span><span class="stat__unit">% in-court</span></div>
+            <div class="stat__bars">
+              <div class="stat__bar stat__bar--tomas"><span class="stat__fill" style="--w:92%"><span class="stat__value">92%</span></span></div>
+              <div class="stat__bar stat__bar--fern"><span class="stat__fill" style="--w:44%"><span class="stat__value">44%</span></span></div>
+            </div>
+          </div>
+          <div class="stat" data-tomas="88" data-fern="38">
+            <div class="stat__label"><span>Backhand Consistency</span><span class="stat__unit">rally survival rate</span></div>
+            <div class="stat__bars">
+              <div class="stat__bar stat__bar--tomas"><span class="stat__fill" style="--w:88%"><span class="stat__value">88%</span></span></div>
+              <div class="stat__bar stat__bar--fern"><span class="stat__fill" style="--w:38%"><span class="stat__value">38%</span></span></div>
+            </div>
+          </div>
+          <div class="stat" data-tomas="94" data-fern="22">
+            <div class="stat__label"><span>Court Coverage</span><span class="stat__unit">meters per point</span></div>
+            <div class="stat__bars">
+              <div class="stat__bar stat__bar--tomas"><span class="stat__fill" style="--w:94%"><span class="stat__value">94</span></span></div>
+              <div class="stat__bar stat__bar--fern"><span class="stat__fill" style="--w:22%"><span class="stat__value">22</span></span></div>
+            </div>
+          </div>
+          <div class="stat" data-tomas="98" data-fern="18">
+            <div class="stat__label"><span>Stamina</span><span class="stat__unit">games before snack</span></div>
+            <div class="stat__bars">
+              <div class="stat__bar stat__bar--tomas"><span class="stat__fill" style="--w:98%"><span class="stat__value">∞</span></span></div>
+              <div class="stat__bar stat__bar--fern"><span class="stat__fill" style="--w:18%"><span class="stat__value">2</span></span></div>
+            </div>
+          </div>
+          <div class="stat" data-tomas="90" data-fern="97">
+            <div class="stat__label"><span>Trash Talk</span><span class="stat__unit">(finally — a Fernanda win)</span></div>
+            <div class="stat__bars">
+              <div class="stat__bar stat__bar--tomas"><span class="stat__fill" style="--w:90%"><span class="stat__value">90</span></span></div>
+              <div class="stat__bar stat__bar--fern"><span class="stat__fill" style="--w:97%"><span class="stat__value">97</span></span></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- DRAGGABLE COMPARISON SLIDER -->
+        <div class="slider-card">
+          <h3 class="slider-card__title">Drag to compare: "How much better is Tomas?"</h3>
+          <input type="range" id="compare-slider" min="0" max="100" value="85" aria-label="Tomas superiority percentage" />
+          <div class="slider-card__readout">
+            <span id="slider-value">85</span>% better
+            <span id="slider-commentary" class="slider-card__comment">Comfortable victory.</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- RADAR VIEW -->
+      <div id="view-radar" class="view" role="tabpanel" aria-labelledby="tab-radar" hidden>
+        <div class="radar-wrap">
+          <svg id="radar-svg" viewBox="0 0 420 420" class="radar" aria-label="Skill radar comparing Tomas and Fernanda"></svg>
+          <ul class="radar-legend">
+            <li><span class="dot dot--tomas"></span>Tomas</li>
+            <li><span class="dot dot--fern"></span>Fernanda</li>
+          </ul>
+        </div>
+      </div>
+
+      <!-- GAUGE VIEW -->
+      <div id="view-gauge" class="view" role="tabpanel" aria-labelledby="tab-gauge" hidden>
+        <div class="gauges">
+          <figure class="gauge gauge--tomas">
+            <svg viewBox="0 0 200 120" class="gauge__svg" aria-hidden="true">
+              <path d="M20,110 A80,80 0 0,1 180,110" fill="none" stroke="rgba(255,255,255,0.08)" stroke-width="12" stroke-linecap="round"/>
+              <path class="gauge__arc" d="M20,110 A80,80 0 0,1 180,110" fill="none" stroke-width="12" stroke-linecap="round"/>
+              <line class="gauge__needle" x1="100" y1="110" x2="100" y2="40" stroke-width="3" stroke-linecap="round"/>
+              <circle cx="100" cy="110" r="6" class="gauge__pin"/>
+            </svg>
+            <figcaption>
+              <span class="gauge__value" data-speed="118">0</span><span class="gauge__unit">mph</span>
+              <span class="gauge__who">Tomas</span>
+            </figcaption>
+          </figure>
+          <figure class="gauge gauge--fern">
+            <svg viewBox="0 0 200 120" class="gauge__svg" aria-hidden="true">
+              <path d="M20,110 A80,80 0 0,1 180,110" fill="none" stroke="rgba(255,255,255,0.08)" stroke-width="12" stroke-linecap="round"/>
+              <path class="gauge__arc" d="M20,110 A80,80 0 0,1 180,110" fill="none" stroke-width="12" stroke-linecap="round"/>
+              <line class="gauge__needle" x1="100" y1="110" x2="100" y2="40" stroke-width="3" stroke-linecap="round"/>
+              <circle cx="100" cy="110" r="6" class="gauge__pin"/>
+            </svg>
+            <figcaption>
+              <span class="gauge__value" data-speed="42">0</span><span class="gauge__unit">mph</span>
+              <span class="gauge__who">Fernanda</span>
+            </figcaption>
+          </figure>
+        </div>
+      </div>
+
+      <!-- HEATMAP VIEW -->
+      <div id="view-heatmap" class="view" role="tabpanel" aria-labelledby="tab-heatmap" hidden>
+        <p class="view__caption">Court dominance zones (warmer = more shots landed).</p>
+        <div class="heatmap-wrap">
+          <figure class="heatmap">
+            <figcaption>Tomas</figcaption>
+            <div class="heatmap__court" id="heatmap-tomas" aria-hidden="true"></div>
+          </figure>
+          <figure class="heatmap">
+            <figcaption>Fernanda</figcaption>
+            <div class="heatmap__court" id="heatmap-fern" aria-hidden="true"></div>
+          </figure>
+        </div>
+      </div>
+
+      <!-- RANKINGS VIEW -->
+      <div id="view-rankings" class="view" role="tabpanel" aria-labelledby="tab-rankings" hidden>
+        <ol class="rankings">
+          <li class="rankings__item rankings__item--gold">
+            <span class="rankings__rank">1</span>
+            <span class="rankings__name">Tomas</span>
+            <span class="rankings__points">9,842 pts</span>
+          </li>
+          <li class="rankings__item">
+            <span class="rankings__rank">2</span>
+            <span class="rankings__name">The Dog</span>
+            <span class="rankings__points">612 pts</span>
+          </li>
+          <li class="rankings__item">
+            <span class="rankings__rank">3</span>
+            <span class="rankings__name">The Wall</span>
+            <span class="rankings__points">408 pts</span>
+          </li>
+          <li class="rankings__item">
+            <span class="rankings__rank">4</span>
+            <span class="rankings__name">Fernanda</span>
+            <span class="rankings__points">147 pts</span>
+          </li>
+        </ol>
+        <p class="footnote">Rankings based on a proprietary algorithm. Appeals must be submitted in writing to Tomas.</p>
+      </div>
+
+      <!-- H2H record -->
+      <div class="h2h">
+        <div class="h2h__card">
+          <h3>Head-to-Head Record</h3>
+          <div class="h2h__score">
+            <div class="h2h__side h2h__side--tomas">
+              <span class="h2h__num" data-count="47">0</span>
+              <span class="h2h__name">Tomas</span>
+            </div>
+            <span class="h2h__dash" aria-hidden="true">—</span>
+            <div class="h2h__side h2h__side--fern">
+              <span class="h2h__num" data-count="3">0</span>
+              <span class="h2h__name">Fernanda</span>
+            </div>
+          </div>
+          <p class="h2h__asterisk">
+            Fernanda's 3 wins all occurred during seasons when Tomas was
+            "letting her get one so she'd keep playing."
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ACHIEVEMENT BADGES -->
+    <section id="badges" class="badges reveal">
+      <h2 class="section__title">Achievement Cabinet</h2>
+      <p class="section__subtitle">Click a medal to see the story behind it.</p>
+      <div class="badge-grid" id="badge-grid"></div>
+      <p id="badge-story" class="badge-story" aria-live="polite">Tap any medal above.</p>
+    </section>
+
+    <!-- MATCH HISTORY with W/L streak -->
+    <section id="timeline" class="timeline reveal">
+      <h2 class="section__title">Match History &amp; Win Streak</h2>
+      <p class="section__subtitle">Last 20 matches, left to right. T = Tomas win, F = Fernanda.</p>
+
+      <div class="streak" id="streak" aria-label="Match results timeline"></div>
+      <div class="streak-legend">
+        <span><i class="streak__chip streak__chip--t"></i> Tomas</span>
+        <span><i class="streak__chip streak__chip--f"></i> Fernanda</span>
+      </div>
+
+      <h3 class="timeline__heading">A History of Humbling</h3>
+      <ol class="timeline__list">
+        <li class="timeline__item"><span class="timeline__year">2012</span><h4>The Origin Story</h4><p>Tomas, age 8, wins his first point against Fernanda. She blames the sun. The sun is behind her.</p></li>
+        <li class="timeline__item"><span class="timeline__year">2016</span><h4>The First Bagel</h4><p>Tomas wins 6-0. Fernanda claims she was "just warming up." For the entire set.</p></li>
+        <li class="timeline__item"><span class="timeline__year">2019</span><h4>The Topspin Era Begins</h4><p>Tomas develops a forehand with actual RPMs. Fernanda develops a stronger interest in pickleball.</p></li>
+        <li class="timeline__item"><span class="timeline__year">2022</span><h4>The Great Rebellion</h4><p>Fernanda wins one (1) game using a drop shot she watched on YouTube. She still brings it up.</p></li>
+        <li class="timeline__item"><span class="timeline__year">2026</span><h4>Present Day</h4><p>Tomas commissions a website to formally document the gap. Fernanda requests a right of reply. Denied.</p></li>
+      </ol>
+    </section>
+
+    <!-- COMMENTARY -->
+    <section class="commentary reveal">
+      <h2 class="section__title">Commentary Booth</h2>
+      <p class="section__subtitle">Quotes from our totally real, definitely unbiased broadcast team.</p>
+      <div class="commentary__grid" id="commentary-grid"></div>
+    </section>
+
+    <!-- FAKE NEWS FEED -->
+    <section id="news" class="news reveal">
+      <h2 class="section__title">The Baseline Times</h2>
+      <p class="section__subtitle">Breaking tennis news from our family beat reporter.</p>
+      <div class="news__feed" id="news-feed"></div>
+      <button id="news-more" class="btn btn--ghost" style="margin-top:1.5rem">Load more headlines</button>
+    </section>
+
+    <!-- VERDICT -->
+    <section id="verdict" class="verdict reveal">
+      <div class="verdict__card">
+        <h2 class="verdict__title">The Verdict</h2>
+        <p class="verdict__body">
+          After careful analysis of serves, strokes, stamina, and sibling-level sass,
+          the evidence is overwhelming, the data is indisputable, and the trophy is spoken for.
+        </p>
+        <div class="verdict__winner">
+          <span class="verdict__crown" aria-label="Crown — click for confetti">♛</span>
+          <span class="verdict__name">Tomas</span>
+          <span class="verdict__subtitle">Undisputed Household Champion</span>
+        </div>
+        <p class="verdict__love">
+          Fernanda, though, remains the undisputed champion of something even more important:
+          <span class="verdict__heart">being an incredible mom. ♥</span>
         </p>
       </div>
-    </div>
-  </section>
-
-  <!-- TIMELINE -->
-  <section id="timeline" class="timeline">
-    <h2 class="section__title">A History of Humbling</h2>
-    <p class="section__subtitle">Key moments in the Tomas Tennis Cinematic Universe.</p>
-
-    <ol class="timeline__list">
-      <li class="timeline__item">
-        <span class="timeline__year">2012</span>
-        <h4>The Origin Story</h4>
-        <p>Tomas, age 8, wins his first point against Fernanda. She blames the sun. The sun is behind her.</p>
-      </li>
-      <li class="timeline__item">
-        <span class="timeline__year">2016</span>
-        <h4>The First Bagel</h4>
-        <p>Tomas wins 6-0. Fernanda claims she was "just warming up." For the entire set.</p>
-      </li>
-      <li class="timeline__item">
-        <span class="timeline__year">2019</span>
-        <h4>The Topspin Era Begins</h4>
-        <p>Tomas develops a forehand with actual RPMs. Fernanda develops a stronger interest in pickleball.</p>
-      </li>
-      <li class="timeline__item">
-        <span class="timeline__year">2022</span>
-        <h4>The Great Rebellion</h4>
-        <p>Fernanda wins one (1) game using a drop shot she watched on YouTube. She still brings it up.</p>
-      </li>
-      <li class="timeline__item">
-        <span class="timeline__year">2026</span>
-        <h4>Present Day</h4>
-        <p>Tomas commissions a website to formally document the gap. Fernanda requests a right of reply. Denied.</p>
-      </li>
-    </ol>
-  </section>
-
-  <!-- VERDICT -->
-  <section id="verdict" class="verdict">
-    <div class="verdict__card">
-      <h2 class="verdict__title">The Verdict</h2>
-      <p class="verdict__body">
-        After careful analysis of serves, strokes, stamina, and sibling-level sass,
-        the evidence is overwhelming, the data is indisputable, and the trophy is spoken for.
-      </p>
-      <div class="verdict__winner">
-        <span class="verdict__crown">♛</span>
-        <span class="verdict__name">Tomas</span>
-        <span class="verdict__subtitle">Undisputed Household Champion</span>
-      </div>
-      <p class="verdict__love">
-        Fernanda, though, remains the undisputed champion of something even more important:
-        <span class="verdict__heart">being an incredible mom. ♥</span>
-      </p>
-    </div>
-  </section>
+    </section>
+  </main>
 
   <footer class="footer">
     <p>Built with love, topspin, and zero objectivity. © 2026 Tomas.</p>
     <p class="footer__small">No mothers were harmed in the making of this website. Only ego.</p>
+    <p class="footer__hint">
+      Shortcuts: <kbd>T</kbd> theme · <kbd>S</kbd> sound · <kbd>R</kbd> roast · <kbd>←/→</kbd> switch tabs · <kbd>↑</kbd> confetti
+    </p>
   </footer>
+
+  <!-- Toast for share/copy confirmations -->
+  <div id="toast" class="toast" role="status" aria-live="polite"></div>
 
   <script src="script.js"></script>
 </body>
