@@ -1,0 +1,332 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Falling Books</title>
+<style>
+  html, body {
+    margin: 0;
+    padding: 0;
+    height: 100%;
+    background: linear-gradient(180deg, #1b1230 0%, #2c1b4a 60%, #3a2560 100%);
+    color: #f4ecd8;
+    font-family: Georgia, "Times New Roman", serif;
+    overflow: hidden;
+  }
+  #ui {
+    position: fixed;
+    top: 12px;
+    left: 12px;
+    background: rgba(0, 0, 0, 0.45);
+    padding: 10px 14px;
+    border-radius: 8px;
+    font-size: 14px;
+    line-height: 1.5;
+    user-select: none;
+    backdrop-filter: blur(4px);
+    z-index: 10;
+  }
+  #ui button {
+    margin-top: 6px;
+    background: #f4ecd8;
+    color: #1b1230;
+    border: none;
+    padding: 5px 10px;
+    border-radius: 4px;
+    font-family: inherit;
+    cursor: pointer;
+  }
+  #ui button:hover { background: #fff; }
+  canvas {
+    display: block;
+    width: 100vw;
+    height: 100vh;
+  }
+</style>
+</head>
+<body>
+  <div id="ui">
+    <div><strong>Falling Books</strong></div>
+    <div>Click anywhere to drop a book</div>
+    <div>Books: <span id="count">0</span></div>
+    <button id="reset">Reset Stack</button>
+  </div>
+  <canvas id="stage"></canvas>
+
+<script>
+(() => {
+  const canvas = document.getElementById('stage');
+  const ctx = canvas.getContext('2d');
+  const countEl = document.getElementById('count');
+  const resetBtn = document.getElementById('reset');
+
+  let W = 0, H = 0;
+  function resize() {
+    const dpr = window.devicePixelRatio || 1;
+    W = canvas.clientWidth = window.innerWidth;
+    H = canvas.clientHeight = window.innerHeight;
+    canvas.width = W * dpr;
+    canvas.height = H * dpr;
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+  }
+  window.addEventListener('resize', resize);
+  resize();
+
+  const GRAVITY = 1400;          // px / s^2
+  const RESTITUTION = 0.18;      // bounciness
+  const FRICTION = 0.78;         // horizontal damping on impact
+  const ANGULAR_DAMP = 0.85;     // rotation damping on landing
+  const REST_SPEED = 12;         // sleep threshold
+
+  const palette = [
+    { spine: '#8b2c2c', text: '#f4ecd8', title: 'Iliad' },
+    { spine: '#1f4d3a', text: '#e8d8a8', title: 'Walden' },
+    { spine: '#3a2a6b', text: '#ffd27a', title: 'Hamlet' },
+    { spine: '#7a4a1c', text: '#f4ecd8', title: 'Moby Dick' },
+    { spine: '#0e3b5c', text: '#e8d8a8', title: 'Ulysses' },
+    { spine: '#5c1a3b', text: '#ffd27a', title: '1984' },
+    { spine: '#2f5d2f', text: '#f4ecd8', title: 'Dune' },
+    { spine: '#6b2a08', text: '#e8d8a8', title: 'Faust' },
+    { spine: '#34344a', text: '#ffd27a', title: 'Gatsby' },
+    { spine: '#704214', text: '#f4ecd8', title: 'Aeneid' },
+  ];
+
+  const books = [];
+
+  class Book {
+    constructor(x, y) {
+      this.w = 70 + Math.random() * 90;   // width along x
+      this.h = 18 + Math.random() * 10;    // height (thickness)
+      this.x = x;                          // center x
+      this.y = y;                          // center y
+      this.vx = (Math.random() - 0.5) * 80;
+      this.vy = 0;
+      this.angle = (Math.random() - 0.5) * 0.6;
+      this.angVel = (Math.random() - 0.5) * 2.0;
+      this.color = palette[Math.floor(Math.random() * palette.length)];
+      this.sleeping = false;
+    }
+
+    aabb() {
+      // Bounding box of rotated rect (worst case)
+      const c = Math.abs(Math.cos(this.angle));
+      const s = Math.abs(Math.sin(this.angle));
+      const halfW = (this.w * c + this.h * s) / 2;
+      const halfH = (this.w * s + this.h * c) / 2;
+      return {
+        left: this.x - halfW,
+        right: this.x + halfW,
+        top: this.y - halfH,
+        bottom: this.y + halfH,
+      };
+    }
+
+    step(dt) {
+      if (this.sleeping) return;
+
+      this.vy += GRAVITY * dt;
+      this.x += this.vx * dt;
+      this.y += this.vy * dt;
+      this.angle += this.angVel * dt;
+
+      // Walls
+      const halfW = this.w / 2;
+      if (this.x - halfW < 0) {
+        this.x = halfW;
+        this.vx = -this.vx * RESTITUTION;
+      } else if (this.x + halfW > W) {
+        this.x = W - halfW;
+        this.vx = -this.vx * RESTITUTION;
+      }
+
+      // Floor
+      const floorY = H - 10;
+      const box = this.aabb();
+      if (box.bottom > floorY) {
+        const overlap = box.bottom - floorY;
+        this.y -= overlap;
+        if (this.vy > 0) this.vy = -this.vy * RESTITUTION;
+        this.vx *= FRICTION;
+        this.angVel *= ANGULAR_DAMP;
+        // Snap to flat orientation as it settles
+        this.angle = lerpAngleTowardFlat(this.angle, 0.25);
+      }
+
+      // Stack collisions (AABB approximation, sufficient since books settle flat)
+      for (let i = 0; i < books.length; i++) {
+        const other = books[i];
+        if (other === this) continue;
+        const a = this.aabb();
+        const b = other.aabb();
+        if (a.right < b.left || a.left > b.right) continue;
+        if (a.bottom < b.top || a.top > b.bottom) continue;
+
+        // Resolve: if mostly overlapping vertically and falling, sit on top
+        const horizOverlap = Math.min(a.right, b.right) - Math.max(a.left, b.left);
+        const vertOverlap = Math.min(a.bottom, b.bottom) - Math.max(a.top, b.top);
+
+        if (horizOverlap > 4 && this.y < other.y && this.vy >= -2) {
+          // Place on top
+          this.y -= vertOverlap;
+          if (this.vy > 0) this.vy = -this.vy * RESTITUTION;
+          this.vx = (this.vx + other.vx) * 0.5 * FRICTION;
+          this.angVel *= ANGULAR_DAMP;
+          this.angle = lerpAngleTowardFlat(this.angle, 0.2);
+        } else if (horizOverlap < vertOverlap) {
+          // Side push
+          if (this.x < other.x) {
+            this.x -= (horizOverlap + 0.5) / 2;
+            other.x += (horizOverlap + 0.5) / 2;
+          } else {
+            this.x += (horizOverlap + 0.5) / 2;
+            other.x -= (horizOverlap + 0.5) / 2;
+          }
+          this.vx *= 0.6;
+          other.vx *= 0.6;
+          other.sleeping = false;
+        }
+      }
+
+      // Sleep check
+      if (
+        Math.abs(this.vx) < REST_SPEED &&
+        Math.abs(this.vy) < REST_SPEED &&
+        Math.abs(this.angVel) < 0.05 &&
+        this.aabb().bottom >= floorY - 1 - this.h * books.length
+      ) {
+        this.vx = 0;
+        this.vy = 0;
+        this.angVel = 0;
+      }
+    }
+
+    draw(ctx) {
+      ctx.save();
+      ctx.translate(this.x, this.y);
+      ctx.rotate(this.angle);
+
+      const w = this.w, h = this.h;
+
+      // Shadow
+      ctx.fillStyle = 'rgba(0, 0, 0, 0.35)';
+      ctx.fillRect(-w / 2 + 2, -h / 2 + 3, w, h);
+
+      // Spine body
+      const grad = ctx.createLinearGradient(0, -h / 2, 0, h / 2);
+      grad.addColorStop(0, shade(this.color.spine, 25));
+      grad.addColorStop(0.5, this.color.spine);
+      grad.addColorStop(1, shade(this.color.spine, -30));
+      ctx.fillStyle = grad;
+      ctx.fillRect(-w / 2, -h / 2, w, h);
+
+      // Top/bottom edge bands (gold leaf accents)
+      ctx.fillStyle = shade(this.color.spine, -45);
+      ctx.fillRect(-w / 2, -h / 2, w, 2);
+      ctx.fillRect(-w / 2, h / 2 - 2, w, 2);
+
+      // Pages edge (right side suggestion)
+      ctx.fillStyle = '#f4ecd8';
+      ctx.fillRect(w / 2 - 3, -h / 2 + 2, 2, h - 4);
+
+      // Title text
+      const fontSize = Math.max(8, h * 0.55);
+      ctx.fillStyle = this.color.text;
+      ctx.font = `bold ${fontSize}px Georgia, serif`;
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      ctx.fillText(this.color.title, 0, 0);
+
+      ctx.restore();
+    }
+  }
+
+  function lerpAngleTowardFlat(a, t) {
+    // Pull toward nearest flat orientation (0 or PI)
+    const target = Math.abs(a) > Math.PI / 2 ? Math.sign(a) * Math.PI : 0;
+    return a + (target - a) * t;
+  }
+
+  function shade(hex, amt) {
+    const m = hex.match(/^#([0-9a-f]{6})$/i);
+    if (!m) return hex;
+    const num = parseInt(m[1], 16);
+    let r = (num >> 16) + amt;
+    let g = ((num >> 8) & 0xff) + amt;
+    let b = (num & 0xff) + amt;
+    r = Math.max(0, Math.min(255, r));
+    g = Math.max(0, Math.min(255, g));
+    b = Math.max(0, Math.min(255, b));
+    return `rgb(${r}, ${g}, ${b})`;
+  }
+
+  function dropBook(x, y) {
+    const spawnY = y !== undefined ? Math.min(y, 60) : 40;
+    const spawnX = x !== undefined ? x : 100 + Math.random() * (W - 200);
+    books.push(new Book(spawnX, spawnY));
+    countEl.textContent = books.length;
+  }
+
+  // Initial drops
+  let initialDrops = 0;
+  const initialInterval = setInterval(() => {
+    dropBook();
+    initialDrops++;
+    if (initialDrops >= 8) clearInterval(initialInterval);
+  }, 350);
+
+  canvas.addEventListener('click', (e) => {
+    dropBook(e.clientX, 30);
+  });
+
+  resetBtn.addEventListener('click', () => {
+    books.length = 0;
+    countEl.textContent = 0;
+  });
+
+  // Floor pattern
+  function drawFloor() {
+    const floorY = H - 10;
+    ctx.fillStyle = '#0d0820';
+    ctx.fillRect(0, floorY, W, 10);
+    ctx.strokeStyle = 'rgba(255, 255, 255, 0.08)';
+    ctx.lineWidth = 1;
+    ctx.beginPath();
+    ctx.moveTo(0, floorY + 0.5);
+    ctx.lineTo(W, floorY + 0.5);
+    ctx.stroke();
+
+    // Subtle background bookshelf glow
+    const g = ctx.createRadialGradient(W / 2, H, 0, W / 2, H, W / 1.4);
+    g.addColorStop(0, 'rgba(255, 220, 170, 0.06)');
+    g.addColorStop(1, 'rgba(0, 0, 0, 0)');
+    ctx.fillStyle = g;
+    ctx.fillRect(0, 0, W, H);
+  }
+
+  let last = performance.now();
+  function frame(now) {
+    const dt = Math.min((now - last) / 1000, 1 / 30);
+    last = now;
+
+    ctx.clearRect(0, 0, W, H);
+    drawFloor();
+
+    // Multiple substeps for stable stacking
+    const steps = 3;
+    const sub = dt / steps;
+    for (let s = 0; s < steps; s++) {
+      for (const b of books) b.step(sub);
+    }
+
+    // Draw bottom-up so upper books overlap lower ones nicely
+    const sorted = books.slice().sort((a, b) => a.y - b.y);
+    for (const b of sorted) b.draw(ctx);
+
+    requestAnimationFrame(frame);
+  }
+  requestAnimationFrame(frame);
+})();
+</script>
+</body>
+</html>
